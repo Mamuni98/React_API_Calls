@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState, useCallback } from "react";
 import MoviesList from "./components/MoviesList";
 import "./App.css";
 
@@ -7,7 +6,12 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const fetchMoviesHandler = async () => {
+  const stopRetrying = () => {
+    setError(null);
+    setIsLoading(false);
+    setMovies([]);
+  };
+  const fetchMoviesHandler = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -28,7 +32,12 @@ function App() {
       setError(error.message);
     }
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+
   let content = <p>Found no movies in the list.</p>;
   if (movies.length > 0) {
     content = <MoviesList movies={movies} />;
@@ -37,7 +46,11 @@ function App() {
     content = <p>Loading...</p>;
   }
   if (error) {
-    content = <p style={{ color: "red" }}>{error}</p>;
+    content = (
+      <p style={{ color: "red" }}>
+        {error}Retrying...<button onClick={stopRetrying}>Cancel</button>
+      </p>
+    );
   }
   return (
     <React.Fragment>
