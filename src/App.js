@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import MoviesList from "./components/MoviesList";
 import "./App.css";
+import AddMovie from "./components/AddMovie";
 
 function App() {
   const [movies, setMovies] = useState([]);
@@ -10,6 +11,9 @@ function App() {
     setError(null);
     setIsLoading(false);
     setMovies([]);
+  };
+  const addNewMovieHandler = (newMovie) => {
+    console.log(newMovie);
   };
   const fetchMoviesHandler = useCallback(async () => {
     try {
@@ -54,6 +58,9 @@ function App() {
   }
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addNewMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
