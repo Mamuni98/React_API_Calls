@@ -45,24 +45,48 @@ function App() {
 
   const addNewMovieHandler = async (newMovie) => {
     //console.log(newMovie);
-    await fetch(
-      "https://react-http-movie-91bc3-default-rtdb.firebaseio.com/movies.json",
-      {
-        method: "POST",
-        body: JSON.stringify(newMovie),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    setMovies((prev) => {
-      return [...prev, newMovie];
-    });
+    try {
+      const response = await fetch(
+        "https://react-http-movie-91bc3-default-rtdb.firebaseio.com/movies.json",
+        {
+          method: "POST",
+          body: JSON.stringify(newMovie),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      //console.log(data);
+      const addMovie = { id: data.name, ...newMovie };
+      setMovies((prev) => {
+        return [addMovie, ...prev];
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const deleteMovieFromListHandler = async (id) => {
+    try {
+      //console.log(id);
+      await fetch(
+        `https://react-http-movie-91bc3-default-rtdb.firebaseio.com/movies/${id}.json`,
+        { method: "DELETE" }
+      );
+      setMovies((prevMovies) => {
+        const filteredMovies = prevMovies.filter((movie) => movie.id !== id);
+        return [...filteredMovies];
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   let content = <p>Found no movies in the list.</p>;
   if (movies.length > 0) {
-    content = <MoviesList movies={movies} />;
+    content = (
+      <MoviesList movies={movies} onDeleteMovie={deleteMovieFromListHandler} />
+    );
   }
   if (isLoading) {
     content = <p>Loading...</p>;
